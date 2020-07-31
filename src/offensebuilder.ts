@@ -1,25 +1,28 @@
-const config = require("../config.json");
-const leads = require(`../mon-sets/${config.gen}leads.json`);
-const sets = require(`../mon-sets/${config.gen}sets.json`);
+import config from "../config.json";
+import gen7Leads from './mon-sets/gen7leads.json';
+import natdexLeads from './mon-sets/natdexleads.json';
+import gen7Sets from './mon-sets/gen7sets.json';
+import natdexSets from './mon-sets/natdexsets.json';
 
-
-
-module.exports = buildTeam();
-
-function buildTeam() {
+export function buildTeam() {
 
     let teamString = "";
     for (var b = 0; b < config.teamNumber; b++) {
-        let team = [];
+        let team: any = [];
 
         if (config.teamNumber > 1) {
             teamString += `=== [${config.tier}] team${b} ===\n\n`;
         }
+        let startMon: any = config.startMon;
 
-        if (config.startMon.set) {
+        if (startMon.set) {
             team[0] = config.startMon;
         } else {
-            team[0] = leads[getRandomInt(leads.length)]
+            if (config.gen === 'gen7') {
+                team[0] = gen7Leads[getRandomInt(gen7Leads.length)];
+            } else if (config.gen === 'natdex') {
+                team[0] = natdexLeads[getRandomInt(natdexLeads.length)]
+            }
         }
         for (let i = 1; i < config.teamLength; i++) {
             let prunedArray = getMons(0, team);
@@ -42,18 +45,18 @@ function buildTeam() {
         }
 
         for (let i = 0; i < team.length; i++) {
-            set = team[i].set;
+            let set = team[i].set;
             teamString += `${set.name} @ ${set.item}\nAbility: ${set.ability}\nEVs: ${set.evs}\n${set.nature} Nature\n- ${set.moves[0]}\n- ${set.moves[1]}\n- ${set.moves[2]}\n- ${set.moves[3]}\n\n`
         }
     }
     return (teamString);
 }
 
-function getRandomInt(max) {
+function getRandomInt(max: number) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-function isValid(mon, team) {
+function isValid(mon: { set: { name: string; }; z: any; mega: any; }, team: string | any[]) {
     for (let i = 0; i < config.monsToAvoid.length; i++) {
         if (mon.set.name.toLowerCase() === config.monsToAvoid[i].toLowerCase()) {
             return false;
@@ -70,12 +73,21 @@ function isValid(mon, team) {
     return true;
 }
 
-function getMons(num, team) {
+function getMons(num: number, team: string | any[]) {
     let prunedArray = [];
-    for (var a = 0; a < sets.length; a++) {
-        let mon = sets[a];
-        if (sets[a].breaker >= config.cutoff - num && isValid(sets[a], team)) {
-            prunedArray.push(mon);
+    if (config.gen === 'gen7') {
+        for (let set of gen7Sets) {
+            let mon = set;
+            if (mon.breaker >= config.cutoff - num && isValid(set, team)) {
+                prunedArray.push(mon);
+            }
+        }
+    } else if (config.gen === 'natdex') {
+        for (let set of natdexSets) {
+            let mon = set;
+            if (mon.breaker >= config.cutoff - num && isValid(set, team)) {
+                prunedArray.push(mon);
+            }
         }
     }
     if (prunedArray.length > 0) {

@@ -1,6 +1,11 @@
-const sets = require("../mon-sets/gen7sets.json");
-const config = require("../config.json");
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.buildTeam = void 0;
+const gen7sets_json_1 = __importDefault(require("./mon-sets/gen7sets.json"));
+const config_json_1 = __importDefault(require("../config.json"));
 let stats = {
     ints: {
         rayCheck: 0,
@@ -18,29 +23,22 @@ let stats = {
     defog: false,
     cleric: false
 };
-
-module.exports = buildTeam();
-
 function buildTeam() {
-
     let teamString = "";
-
-    for (var b = 0; b < config.teamNumber; b++) {
+    for (var b = 0; b < config_json_1.default.teamNumber; b++) {
         let team = [];
-        if (config.teamNumber > 1) {
-            teamString += `=== [${config.tier}] team${b} ===\n\n`;
+        if (config_json_1.default.teamNumber > 1) {
+            teamString += `=== [${config_json_1.default.tier}] team${b} ===\n\n`;
         }
-
-        if (!config.startMon.set) {
+        let startMon = config_json_1.default.startMon;
+        if (!startMon.set) {
             team[0] = getRandomMon(team);
-        } else {
-            team[0] = config.startMon;
         }
-
+        else {
+            team[0] = config_json_1.default.startMon;
+        }
         updateStats(team);
-
-        for (let i = 1; i < config.teamLength; i++) {
-
+        for (let i = 1; i < config_json_1.default.teamLength; i++) {
             let pruneArray = [];
             let prunedArray = [];
             let priority = "";
@@ -52,33 +50,33 @@ function buildTeam() {
                     priority = key;
                 }
             }
-
-            for (let a = 0; a < sets.length; a++) {
-                if (sets[a][priority] >= config.cutoff) {
-                    pruneArray.push(sets[a]);
+            for (let SET of gen7sets_json_1.default) {
+                if (SET.priority && SET.priority >= config_json_1.default.cutoff) {
+                    pruneArray.push(SET);
                 }
             }
-
             for (let a = 0; a < pruneArray.length; a++) {
                 if (isValid(pruneArray[a], team) && zMegaCheckPassed(pruneArray[a]) && clericTest(pruneArray[a])) {
                     if (!stats.rocks || !stats.defog) {
                         if (!stats.rocks && pruneArray[a].rocks) {
                             prunedArray.push(pruneArray[a]);
-                        } else if (!stats.defog && pruneArray[a].defog) {
+                        }
+                        else if (!stats.defog && pruneArray[a].defog) {
                             prunedArray.push(pruneArray[a]);
-                        } else {
+                        }
+                        else {
                             rejected.push(pruneArray[a]);
                         }
-                    } else {
+                    }
+                    else {
                         if ((!stats.rocks) || (stats.rocks && !pruneArray[a].rocks)) {
                             prunedArray.push(pruneArray[a]);
                         }
                     }
                 }
             }
-
             if (prunedArray.length === 0) {
-                if (!stats.defog && config.cutoff <= 2) {
+                if (!stats.defog && config_json_1.default.cutoff <= 2) {
                     let mon = getRandomMon(team);
                     let a = 0;
                     while (!mon.defog) {
@@ -89,7 +87,8 @@ function buildTeam() {
                         }
                     }
                     prunedArray.push(mon);
-                } else if (rejected) {
+                }
+                else if (rejected) {
                     for (let i = 0; i < rejected.length; i++) {
                         if (rejected[i] && isValid(rejected[i], team) && zMegaCheckPassed(rejected[i]) && clericTest(rejected[i])) {
                             if ((!stats.rocks) || (stats.rocks && !rejected[i].rocks)) {
@@ -100,7 +99,8 @@ function buildTeam() {
                     if (prunedArray.length === 0) {
                         prunedArray.push(getRandomMon(team));
                     }
-                } else {
+                }
+                else {
                     prunedArray.push(getRandomMon(team));
                 }
             }
@@ -112,15 +112,12 @@ function buildTeam() {
                 }
             }
             updateStats(team);
-
         }
-
         for (let i = 0; i < team.length; i++) {
-            set = team[i].set;
-            teamString += `${set.name} @ ${set.item}\nAbility: ${set.ability}\nEVs: ${set.evs}\n${set.nature} Nature\n- ${set.moves[0]}\n- ${set.moves[1]}\n- ${set.moves[2]}\n- ${set.moves[3]}\n\n`
+            let set = team[i].set;
+            teamString += `${set.name} @ ${set.item}\nAbility: ${set.ability}\nEVs: ${set.evs}\n${set.nature} Nature\n- ${set.moves[0]}\n- ${set.moves[1]}\n- ${set.moves[2]}\n- ${set.moves[3]}\n\n`;
         }
-
-        if (config.teamNumber === 1) {
+        if (config_json_1.default.teamNumber === 1) {
             for (let [key, value] of Object.entries(stats.ints)) {
                 console.log(key, value);
             }
@@ -128,11 +125,10 @@ function buildTeam() {
     }
     return (teamString);
 }
-
+exports.buildTeam = buildTeam;
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
-
 function updateStats(team) {
     stats = {
         ints: {
@@ -148,83 +144,90 @@ function updateStats(team) {
         mega: false,
         z: false,
         rocks: false,
-        defog: false
+        defog: false,
+        cleric: false
     };
-
     for (let i = 0; i < team.length; i++) {
-        if (team[i].breaker) { stats.ints.breaker += team[i].breaker; }
-        if (team[i].rayCheck) { stats.ints.rayCheck += team[i].rayCheck; }
-        if (team[i].zygCheck) { stats.ints.zygCheck += team[i].zygCheck; }
-        if (team[i].marshCheck) { stats.ints.marshCheck += team[i].marshCheck; }
-        if (team[i].donCheck) { stats.ints.donCheck += team[i].donCheck; }
-        if (team[i].ultraCheck) { stats.ints.ultraCheck += team[i].ultraCheck; }
-        if (team[i].xernCheck) { stats.ints.xernCheck += team[i].xernCheck; }
-        if (team[i].ogreCheck) { stats.ints.ogreCheck += team[i].ogreCheck; }
-
+        if (team[i].breaker) {
+            stats.ints.breaker += team[i].breaker;
+        }
+        if (team[i].rayCheck) {
+            stats.ints.rayCheck += team[i].rayCheck;
+        }
+        if (team[i].zygCheck) {
+            stats.ints.zygCheck += team[i].zygCheck;
+        }
+        if (team[i].marshCheck) {
+            stats.ints.marshCheck += team[i].marshCheck;
+        }
+        if (team[i].donCheck) {
+            stats.ints.donCheck += team[i].donCheck;
+        }
+        if (team[i].ultraCheck) {
+            stats.ints.ultraCheck += team[i].ultraCheck;
+        }
+        if (team[i].xernCheck) {
+            stats.ints.xernCheck += team[i].xernCheck;
+        }
+        if (team[i].ogreCheck) {
+            stats.ints.ogreCheck += team[i].ogreCheck;
+        }
         if (team[i].mega) {
             stats.mega = true;
         }
-
         if (team[i].z) {
             stats.z = true;
         }
-
         if (team[i].rocks) {
             stats.rocks = true;
         }
-
         if (team[i].defog) {
             stats.defog = true;
         }
-
         if (team[i].cleric) {
             stats.cleric = true;
         }
     }
 }
-
 function isValid(mon, team) {
     for (let i = 0; i < team.length; i++) {
         if (mon.set.name.includes(team[i].set.name) || team[i].set.name.includes(mon)) {
             return false;
         }
-
         if ((mon.set.name.includes("Tyranitar") && team[i].set.name === "Shedinja") || (mon === "Shedinja" && team[i].set.name.includes("Tyranitar"))) {
             return false;
         }
     }
-    for (let i = 0; i < config.monsToAvoid.length; i++) {
-        if (mon.set.name.toLowerCase() === config.monsToAvoid[i].toLowerCase()) {
+    for (let i = 0; i < config_json_1.default.monsToAvoid.length; i++) {
+        if (mon.set.name.toLowerCase() === config_json_1.default.monsToAvoid[i].toLowerCase()) {
             return false;
         }
     }
     return true;
 }
-
 function zMegaCheckPassed(mon) {
     if (!stats.mega && !stats.z) {
         return true;
-    } else if (stats.mega && !mon.mega) {
-        return true;
-    } else if (stats.z && !mon.z) {
+    }
+    else if (stats.mega && !mon.mega) {
         return true;
     }
-
+    else if (stats.z && !mon.z) {
+        return true;
+    }
     return false;
 }
-
 function clericTest(mon) {
     if (stats.cleric && mon.cleric) {
         return false;
     }
     return true;
 }
-
 function getRandomMon(team) {
     let a = 0;
     let completed = false;
     while (!completed) {
-        let rand = sets[getRandomInt(sets.length - 1)];
+        let rand = gen7sets_json_1.default[getRandomInt(gen7sets_json_1.default.length - 1)];
         if (isValid(rand, team) && zMegaCheckPassed(rand) && clericTest(rand)) {
             if ((!stats.rocks) || (stats.rocks && !rand.rocks)) {
                 return (rand);
@@ -232,7 +235,8 @@ function getRandomMon(team) {
         }
         a++;
         if (a > 1000) {
-            return (sets[getRandomInt(sets.length - 1)])
+            return (gen7sets_json_1.default[getRandomInt(gen7sets_json_1.default.length - 1)]);
         }
     }
 }
+//# sourceMappingURL=gen7balancebuilder.js.map

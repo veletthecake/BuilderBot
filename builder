@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // {
 //     "set": {
 //         "name":"",
@@ -21,15 +23,18 @@
 //     "defog":
 // },
 
+console.log('building...');
+
+require('child_process').execSync('npm run build');
 
 const config = require("./config.json");
 
 let teamString = "";
 
 if(config.mode.toLowerCase() != "offense"){
-    teamString = require(`./builders/${config.gen}${config.mode.toLowerCase()}builder.js`);
+    teamString = require(`./dist/src/${config.gen}${config.mode.toLowerCase()}builder.js`).buildTeam();
 } else {
-    teamString = require(`./builders/offensebuilder.js`);
+    teamString = require(`./dist/src/offensebuilder.js`).buildTeam();
 }
 
 console.log(teamString);
