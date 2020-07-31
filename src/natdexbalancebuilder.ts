@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/natdexbalancebuilder.ts
 import sets from "./mon-sets/natdexsets.json";
 import config from "../config.json";
-=======
-const sets = require("./mon-sets/natdexsets.json");
-const config = require("../config.json");
->>>>>>> 8fa5527ce9157e7e2bb236058ebc8f662fa5fa72:src/natdexbalancebuilder.js
 
 let stats = {
     ints: {

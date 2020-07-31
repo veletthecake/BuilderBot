@@ -1,10 +1,5 @@
-<<<<<<< HEAD:src/gen7balancebuilder.ts
 import sets  from "./mon-sets/gen7sets.json";
 import config from "../config.json";
-=======
-const sets = require("./mon-sets/gen7sets.json");
-const config = require("../config.json");
->>>>>>> 8fa5527ce9157e7e2bb236058ebc8f662fa5fa72:src/gen7balancebuilder.js
 
 let stats = {
     ints: {

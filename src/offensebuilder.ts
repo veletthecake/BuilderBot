@@ -1,14 +1,8 @@
-<<<<<<< HEAD:src/offensebuilder.ts
 import config from "../config.json";
 import gen7Leads from './mon-sets/gen7leads.json';
 import natdexLeads from './mon-sets/natdexleads.json';
 import gen7Sets from './mon-sets/gen7sets.json';
 import natdexSets from './mon-sets/natdexsets.json';
-=======
-const config = require("../config.json");
-const leads = require(`./mon-sets/${config.gen}leads.json`);
-const sets = require(`./mon-sets/${config.gen}sets.json`);
->>>>>>> 8fa5527ce9157e7e2bb236058ebc8f662fa5fa72:src/offensebuilder.js
 
 export function buildTeam() {
 
