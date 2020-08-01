@@ -40,15 +40,24 @@ export function buildTeam() {
 
         for (let i = 1; i < config.teamLength; i++) {
 
-            let pruneArray= [];
+            let pruneArray = [];
             let prunedArray = [];
+            let priority = '';
+            let currentValue = 11;
             let rejected = [];
-            
-            let SET: any;
 
-            for (SET of sets){
-                if(SET.priority >= config.cutoff) {
-                    pruneArray.push(SET);
+            for (let [key, value] of Object.entries(stats.ints)) {
+                if (value <= currentValue) {
+                    currentValue = value;
+                    priority = key;
+                }
+            }
+
+            let set: any = sets
+
+            for (let a = 0; a < set.length; a++) {
+                if (set[a][priority] >= config.cutoff) {
+                    pruneArray.push(sets[a]);
                 }
             }
 
